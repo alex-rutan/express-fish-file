@@ -22,15 +22,27 @@ VALUES (09038500,
         43.1961111, 
         -110.8894444);
 
-INSERT INTO records (river_id, date, rating, flow, weather, high_temp, low_temp)
-VALUES (09038500, 
+INSERT INTO user_rivers (username, river_id)
+VALUES ('testuser'
+        09038500),
+        ('testuser'
+        13022500),
+       ('testadmin'
+        09038500),
+        ('testadmin'
+        13022500);
+
+INSERT INTO records (username, river_id, date, rating, flow, weather, high_temp, low_temp)
+VALUES ('testuser',
+        09038500, 
         08-20-2021, 
         6, 
         3400,
         'Sunny',
         83,
         51),
-        (13022500,
+        ('testadmin',
+        13022500,
         10-25-2021,
         8,
         45.7,

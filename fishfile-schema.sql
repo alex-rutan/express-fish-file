@@ -9,15 +9,22 @@ CREATE TABLE users (
 );
 
 CREATE TABLE rivers (
-  id PRIMARY KEY,
+  id INTEGER PRIMARY KEY,
   name TEXT UNIQUE NOT NULL,
   dec_lat NUMERIC,
   dec_long NUMERIC
 );
 
+CREATE TABLE user_rivers (
+  username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
+  river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
+  PRIMARY KEY (username, river_id)
+)
+
 CREATE TABLE records (
   id SERIAL PRIMARY KEY,
-  river_id INTEGER NOT NULL REFERENCES rivers,
+  username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
+  river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
   date DATE NOT NULL,
   rating INTEGER CHECK (rating >= 0) CHECK (rating <= 10),
   flow NUMERIC,
