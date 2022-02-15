@@ -22,7 +22,7 @@ VALUES (09038500,
         43.1961111, 
         -110.8894444);
 
-INSERT INTO user_rivers (username, river_id)
+INSERT INTO users_rivers (username, river_id)
 VALUES ('testuser'
         09038500),
         ('testuser'

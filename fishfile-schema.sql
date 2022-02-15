@@ -15,7 +15,7 @@ CREATE TABLE rivers (
   dec_long NUMERIC
 );
 
-CREATE TABLE user_rivers (
+CREATE TABLE users_rivers (
   username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
   river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
   PRIMARY KEY (username, river_id)
