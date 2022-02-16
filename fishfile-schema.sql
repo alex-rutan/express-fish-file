@@ -27,6 +27,7 @@ CREATE TABLE records (
   river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
   date DATE NOT NULL,
   rating INTEGER CHECK (rating >= 0) CHECK (rating <= 10),
+  description TEXT, 
   flow NUMERIC,
   weather VARCHAR(20),
   high_temp INTEGER,

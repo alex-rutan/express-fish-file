@@ -32,20 +32,22 @@ VALUES ('testuser'
         ('testadmin'
         13022500);
 
-INSERT INTO records (username, river_id, date, rating, flow, weather, high_temp, low_temp)
+INSERT INTO records (username, river_id, date, rating, description, flow, weather, high_temp, low_temp)
 VALUES ('testuser',
         09038500, 
         08-20-2021, 
-        6, 
-        3400,
+        6,
+        'Beautiful sunny day. Caught four rainbows out of a technical section with tons of boulders and eddie lines. A couple of them pushing 16 inches. Black caddis were the hot fly.', 
+        45.7,
         'Sunny',
         83,
         51),
         ('testadmin',
         13022500,
-        10-25-2021,
+        09-25-2021,
         8,
-        45.7,
+        'Fishing was amazing in the morning. Lots of cutties going after the sculpzillas. The black/purple Amys Ant to a olive wd-40 dropper was also having tons of success as the day warmed up and the wind picked up a bit.'
+        3400,
         'Partly Cloudy',
-        47,
-        24);
+        69,
+        34);
