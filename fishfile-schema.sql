@@ -8,27 +8,27 @@ CREATE TABLE users (
   is_admin BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE rivers (
-  id INTEGER PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL,
-  dec_lat NUMERIC,
-  dec_long NUMERIC
-);
-
-CREATE TABLE users_rivers (
+CREATE TABLE locations (
+  id SERIAL PRIMARY KEY,
   username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
-  river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
-  PRIMARY KEY (username, river_id)
+  name TEXT NOT NULL,
+  usgs_id INTEGER,
+  dec_lat NUMERIC,
+  dec_long NUMERIC,
+  fish TEXT
 )
 
 CREATE TABLE records (
   id SERIAL PRIMARY KEY,
   username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
-  river_id INTEGER REFERENCES rivers ON DELETE CASCADE,
+  location_id INTEGER REFERENCES locations ON DELETE CASCADE,
   date DATE NOT NULL,
   rating INTEGER CHECK (rating >= 0) CHECK (rating <= 10),
-  description TEXT, 
+  description TEXT,
+  flies TEXT, 
   flow NUMERIC,
+  water_temp NUMERIC CHECK (water_temp >= 30) CHECK (water_temp <= 100),
+  pressure NUMERIC CHECK (pressure >= 26) CHECK (pressure <= 32),
   weather VARCHAR(20),
   high_temp INTEGER,
   low_temp INTEGER

@@ -12,33 +12,42 @@ VALUES ('testuser',
         'alexadmin@gmail.com',
         TRUE);
 
-INSERT INTO rivers (id, name, dec_lat, dec_long)
-VALUES (09038500, 
-        'WILLIAMS FORK BELOW WILLIAMS FORK RESERVOIR CO', 
+INSERT INTO locations (username, name, usgs_id, dec_lat, dec_long, fish)
+VALUES  ('testuser',
+        'WILLIAMS FORK BELOW WILLIAMS FORK RESERVOIR CO',
+        09038500,  
         40.03592778, 
-        -106.2050139),
-       (13022500, 
-        'SNAKE RIVER ABOVE RESERVOIR, NEAR ALPINE, WY', 
+        -106.2050139,
+        'Brown Trout, Rainbow Trout'),
+        ('testuser', 
+        'SNAKE RIVER ABOVE RESERVOIR, NEAR ALPINE, WY',
+        13022500, 
         43.1961111, 
-        -110.8894444);
+        -110.8894444,
+        'Cutthroat Trout, Rainbow Trout, Brown Trout'),
+        ('testadmin',
+        'Williams Fork', 
+        09038500, 
+        40.03592778, 
+        -106.2050139,
+        'Brown Trout, Rainbow Trout'),
+        ('testadmin',
+        13022500, 
+        'Snake River', 
+        43.1961111, 
+        -110.8894444,
+        'Cutthroat Trout, Rainbow Trout, Brown Trout');
 
-INSERT INTO users_rivers (username, river_id)
-VALUES ('testuser'
-        09038500),
-        ('testuser'
-        13022500),
-       ('testadmin'
-        09038500),
-        ('testadmin'
-        13022500);
-
-INSERT INTO records (username, river_id, date, rating, description, flow, weather, high_temp, low_temp)
+INSERT INTO records (username, location_id, date, rating, description, flies, flow, water_temp, pressure, weather, high_temp, low_temp)
 VALUES ('testuser',
         09038500, 
         08-20-2021, 
         6,
-        'Beautiful sunny day. Caught four rainbows out of a technical section with tons of boulders and eddie lines. A couple of them pushing 16 inches. Black caddis were the hot fly.', 
+        'Beautiful sunny day. Caught four rainbows out of a technical section with tons of boulders and eddie lines. A couple of them pushing 16 inches. Black caddis were the hot fly.',
+        'Black Caddis', 
         45.7,
+        null,
+        null,
         'Sunny',
         83,
         51),
@@ -46,8 +55,11 @@ VALUES ('testuser',
         13022500,
         09-25-2021,
         8,
-        'Fishing was amazing in the morning. Lots of cutties going after the sculpzillas. The black/purple Amys Ant to a olive wd-40 dropper was also having tons of success as the day warmed up and the wind picked up a bit.'
+        "Fishing was amazing in the morning. Lots of cutties going after the sculpzillas. The black/purple Amy's Ant to a olive wd-40 dropper was also having tons of success as the day warmed up and the wind picked up a bit.",
+        "Sculpzilla, Amy's Ant, Olive WD-40",
         3400,
+        null,
+        null,
         'Partly Cloudy',
         69,
         34);
