@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "usgsId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "decLat": {
+      "type": "number"
+    },
+    "decLong": {
+      "type": "number"
+    },
+    "fish": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["name"]
+}
