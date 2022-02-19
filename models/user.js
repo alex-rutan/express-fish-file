@@ -25,13 +25,13 @@ class User {
     // try to find the user first
     const result = await db.query(
       `SELECT username,
-                  password,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
+              password,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              is_admin AS "isAdmin"
+      FROM users
+      WHERE username = $1`,
       [username],
     );
 
@@ -60,8 +60,8 @@ class User {
     { username, password, firstName, lastName, email, isAdmin }) {
     const duplicateCheck = await db.query(
       `SELECT username
-           FROM users
-           WHERE username = $1`,
+      FROM users
+      WHERE username = $1`,
       [username],
     );
 
@@ -79,8 +79,8 @@ class User {
             last_name,
             email,
             is_admin)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
       [
         username,
         hashedPassword,
@@ -104,12 +104,12 @@ class User {
   static async findAll() {
     const result = await db.query(
       `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           ORDER BY username`,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              is_admin AS "isAdmin"
+      FROM users
+      ORDER BY username`,
     );
 
     return result.rows;
@@ -125,12 +125,12 @@ class User {
   static async get(username) {
     const userRes = await db.query(
       `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
+              first_name AS "firstName",
+              last_name AS "lastName",
+              email,
+              is_admin AS "isAdmin"
+      FROM users
+      WHERE username = $1`,
       [username],
     );
 
@@ -141,16 +141,16 @@ class User {
     // query for and add user's locations to the user object
     const locationsRes = await db.query(
       `SELECT l.id
-           FROM locations AS l
-           WHERE l.username = $1`, [username]);
+      FROM locations AS l
+      WHERE l.username = $1`, [username]);
 
     user.locations = locationsRes.rows.map(l => l.id);
 
     // query for and add user's records to the user object
     const userRecordsRes = await db.query(
       `SELECT r.id
-           FROM records AS r
-           WHERE r.username = $1`, [username]);
+      FROM records AS r
+      WHERE r.username = $1`, [username]);
 
     user.records = userRecordsRes.rows.map(r => r.id);
 
@@ -187,7 +187,7 @@ class User {
         isAdmin: "is_admin",
       });
     
-      // data can't include username, so must build a variable index for it
+    // data can't include username, so must build a variable index for it
     const usernameVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE users 
@@ -212,9 +212,9 @@ class User {
   static async remove(username) {
     let result = await db.query(
       `DELETE
-           FROM users
-           WHERE username = $1
-           RETURNING username`,
+      FROM users
+      WHERE username = $1
+      RETURNING username`,
       [username],
     );
     const user = result.rows[0];

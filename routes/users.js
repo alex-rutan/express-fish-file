@@ -119,36 +119,4 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
 });
 
 
-/** POST /[username]/locations/[id]  =>  { added: locationId }
- *
- * Authorization required: admin or same-user-as-:username
- * */
-
-router.post("/:username/locations/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  try {
-    const locationId = +req.params.id;
-    await User.addLocation(req.params.username, locationId);
-    return res.json({ added: locationId });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-
-/** POST /[username]/records/[id]  =>  { created: recordId }
- *
- * Authorization required: admin or same-user-as-:username
- * */
-
-router.post("/:username/records/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  try {
-    const recordId = +req.params.id;
-    await User.makeRecord(req.params.username, recordId);
-    return res.json({ applied: recordId });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-
 module.exports = router;
