@@ -86,7 +86,7 @@ class Location {
       ORDER BY name`,
     );
 
-    result.rows.forEach(row => {
+    for (const row of result.rows) {
       const locationRecordsRes = await db.query(
         `SELECT r.id
         FROM records AS r
@@ -94,7 +94,7 @@ class Location {
       );
 
       row.records = locationRecordsRes.rows.map(r => r.id);
-    })
+    }
 
     return result.rows;
   }
