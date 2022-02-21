@@ -12,8 +12,9 @@
       "type": "string"
     },
     "usgsId": {
-      "type": "integer",
-      "minimum": 0
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20
     },
     "decLat": {
       "type": "number"

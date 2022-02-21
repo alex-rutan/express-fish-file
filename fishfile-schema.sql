@@ -12,11 +12,11 @@ CREATE TABLE locations (
   id SERIAL PRIMARY KEY,
   username VARCHAR(25) REFERENCES users ON DELETE CASCADE,
   name TEXT NOT NULL,
-  usgs_id INTEGER,
+  usgs_id VARCHAR(20),
   dec_lat NUMERIC,
   dec_long NUMERIC,
   fish TEXT
-)
+);
 
 CREATE TABLE records (
   id SERIAL PRIMARY KEY,
