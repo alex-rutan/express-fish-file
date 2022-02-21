@@ -9,8 +9,8 @@ const morgan = require("morgan");
 const { NotFoundError } = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 const authRoutes = require("./routes/auth");
-const riversRoutes = require("./routes/rivers");
-const recordsRoutes = require("./routes/records");
+const locationsRoutes = require("./routes/locations");
+// const recordsRoutes = require("./routes/records");
 const usersRoutes = require("./routes/users");
 
 const app = express();
@@ -21,8 +21,8 @@ app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
 app.use("/auth", authRoutes);
-app.use("/rivers", riversRoutes);
-app.use("/records", recordsRoutes);
+app.use("/users/:username/locations", locationsRoutes);
+// app.use("/records", recordsRoutes);
 app.use("/users", usersRoutes);
 
 
