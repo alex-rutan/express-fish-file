@@ -26,7 +26,7 @@ router.post("/", ensureCorrectUserOrAdmin, async function (req, res, next) {
     throw new BadRequestError(errs);
   }
 
-  const location = await Location.create(req.params.username, req.body);
+  const location = await Location.create(req.body);
   return res.status(201).json({ location });
 });
 

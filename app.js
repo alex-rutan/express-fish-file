@@ -21,7 +21,7 @@ app.use(morgan("tiny"));
 app.use(authenticateJWT);
 
 app.use("/auth", authRoutes);
-app.use("/users/:username/locations", locationsRoutes);
+app.use("/locations", locationsRoutes);
 // app.use("/records", recordsRoutes);
 app.use("/users", usersRoutes);
 
