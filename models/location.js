@@ -73,7 +73,7 @@ class Location {
    * Returns [{ id, username, name, usgsId, decLat, decLong, fish, records }, ...]
    **/
 
-  static async findAllUserLocations() {
+  static async findAllUserLocations(username) {
     const result = await db.query(
       `SELECT id,
               username,
@@ -83,7 +83,8 @@ class Location {
               dec_long AS "decLong",
               fish
       FROM locations
-      ORDER BY name`,
+      WHERE username = $1
+      ORDER BY name`, [username]
     );
 
     for (const row of result.rows) {

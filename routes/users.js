@@ -8,9 +8,13 @@ const express = require("express");
 const { ensureCorrectUserOrAdmin, ensureAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
+const Location = require("../models/location");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
+const locationNewSchema = require("../schemas/locationNew.json");
+const locationUpdateSchema = require("../schemas/locationUpdate.json");
+const Weather = require("../models/weather");
 
 const router = express.Router();
 
@@ -117,6 +121,105 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
     return next(err);
   }
 });
+
+
+
+
+/****************** LOCATION ROUTES ********************* */
+
+
+
+
+/** POST /  =>  { location }
+ *
+ * Authorization required: admin or same-user-as-:username
+ * */
+
+router.post("/:username/locations", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(req.body, locationNewSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const location = await Location.create(req.body);
+  return res.status(201).json({ location });
+});
+
+
+/** GET /  =>  { locations: [ { id, username, name, usgsId, decLat, decLong, fish, records }, ... ] }
+ *
+ * Returns list of all locations.
+ **/
+
+router.get("/:username/locations", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const locations = await Location.findAllUserLocations(req.params.username);
+  return res.json({ locations });
+});
+
+
+/** GET /[id]  =>  { location }
+ *
+ * Returns { id, username, name, usgsId, decLat, decLong, fish, records }
+ *
+ * Authorization required: admin or same user-as-:username
+ **/
+
+router.get("/:username/locations/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const location = await Location.get(req.params.id);
+  return res.json({ location });
+});
+
+
+/** PATCH /[id] { location }  =>  { location }
+ *
+ * Data can include:
+ *   { name, usgsId, decLat, decLong, fish }
+ *
+ * Returns { id, username, name, usgsId, decLat, decLong, fish }
+ *
+ * Authorization required: admin or same-user-as-:username
+ **/
+
+router.patch("/:username/locations/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(req.body, locationUpdateSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const location = await Location.update(req.params.id, req.body);
+  return res.json({ location });
+});
+
+
+/** DELETE /[id]  =>  { deleted: id }
+ *
+ * Authorization required: admin or same-user-as-:username
+ **/
+
+router.delete("/:username/locations/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  await Location.remove(req.params.id);
+  return res.json({ deleted: req.params.id });
+});
+
+
+
+
+/****************** WEATHER ROUTES ********************* */
+
+
+
+
+router.get("/:username/locations/:id/weather", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const { decLat, decLong } = req.query;
+  const currWeather = await Weather.getCurrWeather(decLat, decLong);
+  const maxAndMinTemps = await Weather.getMaxMinTemps(decLat, decLong);
+
+  const weather = { ...currWeather, ...maxAndMinTemps };
+
+  return weather;
+})
 
 
 module.exports = router;
