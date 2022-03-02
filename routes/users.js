@@ -218,7 +218,7 @@ router.get("/:username/locations/:id/weather", ensureCorrectUserOrAdmin, async f
 
   const weather = { ...currWeather, ...maxAndMinTemps };
 
-  return weather;
+  return res.json({ weather });
 })
 
 

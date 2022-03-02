@@ -31,8 +31,10 @@ class Weather {
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=current&units=imperial`);
     console.log("RES: ", res.data);
     
-    const currTemp = res.data.data.timelines[0].intervals[0].values.temperature;
-    const pressure = res.data.data.timelines[0].intervals[0].values.pressureSurfaceLevel;
+    const currTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperature));
+    const pressure = String(res.data.data.timelines[0].intervals[0].values.pressureSurfaceLevel);
+
+    console.log("CURRTEMP: ", currTemp);
     return { currTemp, pressure };
   }
 
@@ -42,8 +44,10 @@ class Weather {
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=1d&units=imperial`);
     console.log("RES: ", res.data);
 
-    const maxTemp = res.data.data.timelines[0].intervals[0].values.temperatureMax;
-    const minTemp = res.data.data.timelines[0].intervals[0].values.temperatureMin;
+    const maxTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperatureMax));
+    const minTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperatureMin));
+
+    console.log("MAXTEMP: ", maxTemp);
     return { maxTemp, minTemp };
   }
 }
