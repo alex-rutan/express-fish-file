@@ -1,0 +1,10 @@
+Dependencies:
+bcrypt
+colors
+cors
+dotenv
+express
+jsonschema
+jsonwebtoken
+morgan
+pg
