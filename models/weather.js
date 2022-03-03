@@ -27,28 +27,36 @@ class Weather {
 
   /** Get current temperature and atmospheric pressure at latitude and longitude coordinates. */
   static async getCurrWeather(decLat, decLong) {
-    const fields = 'fields=temperature,pressureSurfaceLevel'
+    const fields = 'fields=weatherCode,temperature,pressureSurfaceLevel,windSpeed'
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=current&units=imperial`);
     console.log("RES: ", res.data);
     
-    const currTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperature));
-    const pressure = String(res.data.data.timelines[0].intervals[0].values.pressureSurfaceLevel);
+    const values = res.data.data.timelines[0].intervals[0].values;
+
+    const currWeatherCode = String(values.weatherCode) + "0";
+    const currTemp = String(Math.round(values.temperature));
+    const pressure = String(values.pressureSurfaceLevel);
+    const windSpeed = String(Math.round(values.windSpeed));
 
     console.log("CURRTEMP: ", currTemp);
-    return { currTemp, pressure };
+    return { currWeatherCode, currTemp, pressure, windSpeed };
   }
 
   /** Get today's max and min temperature at latitude and longitude coordinates. */
   static async getMaxMinTemps(decLat, decLong) {
-    const fields = 'fields=temperatureMax,temperatureMin'
+    const fields = 'fields=weatherCodeDay,precipitationProbability,temperatureMax,temperatureMin'
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=1d&units=imperial`);
     console.log("RES: ", res.data);
 
-    const maxTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperatureMax));
-    const minTemp = String(Math.round(res.data.data.timelines[0].intervals[0].values.temperatureMin));
+    const values = res.data.data.timelines[0].intervals[0].values;
+
+    const allDayWeatherCode = String(values.weatherCodeDay);
+    const maxTemp = String(Math.round(values.temperatureMax));
+    const minTemp = String(Math.round(values.temperatureMin));
+    const precipChance = String(values.precipitationProbability);
 
     console.log("MAXTEMP: ", maxTemp);
-    return { maxTemp, minTemp };
+    return { allDayWeatherCode, maxTemp, minTemp, precipChance };
   }
 }
 
