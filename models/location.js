@@ -4,8 +4,7 @@ const db = require("../db");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 const {
   NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
+  BadRequestError
 } = require("../expressError");
 
 
@@ -19,7 +18,6 @@ class Location {
    *
    * Throws BadRequestError on duplicates.
    **/
-
   static async create(
     { username, name, usgsId, decLat, decLong, fish }) {
     // TODO: do I need to create a user check??  
@@ -68,11 +66,11 @@ class Location {
     return location;
   }
 
+
   /** Find all user's locations.
    *
    * Returns [{ id, username, name, usgsId, decLat, decLong, fish, records }, ...]
    **/
-
   static async findAllUserLocations(username) {
     const result = await db.query(
       `SELECT id,
@@ -100,13 +98,13 @@ class Location {
     return result.rows;
   }
 
+
   /** Given an id, return data about location.
    *
    * Returns { id, username, name, usgsId, decLat, decLong, fish, records }
    *
    * Throws NotFoundError if user not found.
    **/
-
   static async get(id) {
     const locationRes = await db.query(
       `SELECT id,
@@ -136,6 +134,7 @@ class Location {
     return location;
   }
 
+
   /** Update location data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain
@@ -148,7 +147,6 @@ class Location {
    *
    * Throws NotFoundError if not found.
    */
-
   static async update(id, data) {
     const { setCols, values } = sqlForPartialUpdate(
       data,
@@ -179,6 +177,7 @@ class Location {
     return location;
   }
 
+  
   /** Delete given location from database; returns undefined. */
 
   static async remove(id) {

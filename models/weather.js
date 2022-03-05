@@ -2,6 +2,7 @@ const axios = require('axios');
 const BASE_URL = "https://api.tomorrow.io/v4/timelines";
 const API_KEY = process.env.WEATHER_API_KEY;
 
+
 /** Weather Class.
  *
  * Static class tying together methods used to get weather data 
@@ -42,6 +43,7 @@ class Weather {
     return { currWeatherCode, currTemp, pressure, windSpeed };
   }
 
+  
   /** Get today's max and min temperature at latitude and longitude coordinates. */
   static async getMaxMinTemps(decLat, decLong) {
     const fields = 'fields=weatherCodeDay,precipitationProbability,temperatureMax,temperatureMin'
@@ -59,5 +61,6 @@ class Weather {
     return { allDayWeatherCode, maxTemp, minTemp, precipChance };
   }
 }
+
 
 module.exports = Weather;

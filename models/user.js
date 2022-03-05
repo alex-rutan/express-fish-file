@@ -11,6 +11,7 @@ const {
 
 const { BCRYPT_WORK_FACTOR } = require("../config.js");
 
+
 /** Related functions for users. */
 
 class User {
@@ -20,7 +21,6 @@ class User {
    *
    * Throws UnauthorizedError is user not found or wrong password.
    **/
-
   static async authenticate(username, password) {
     // try to find the user first
     const result = await db.query(
@@ -49,13 +49,13 @@ class User {
     throw new UnauthorizedError("Invalid username/password");
   }
 
+
   /** Register user with data.
    *
    * Returns { username, firstName, lastName, email, isAdmin }
    *
    * Throws BadRequestError on duplicates.
    **/
-
   static async register(
     { username, password, firstName, lastName, email, isAdmin }) {
     const duplicateCheck = await db.query(
@@ -96,11 +96,11 @@ class User {
     return user;
   }
 
+
   /** Find all users.
    *
    * Returns [{ username, first_name, last_name, email, is_admin }, ...]
    **/
-
   static async findAll() {
     const result = await db.query(
       `SELECT username,
@@ -115,13 +115,13 @@ class User {
     return result.rows;
   }
 
+
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, locations, records }
    *
    * Throws NotFoundError if user not found.
    **/
-
   static async get(username) {
     const userRes = await db.query(
       `SELECT username,
@@ -157,6 +157,7 @@ class User {
     return user;
   }
 
+
   /** Update user data with `data`.
    *
    * This is a "partial update" --- it's fine if data doesn't contain
@@ -173,7 +174,6 @@ class User {
    * Callers of this function must be certain they have validated inputs to this
    * or a serious security risks are opened.
    */
-
   static async update(username, data) {
     if (data.password) {
       data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
@@ -207,8 +207,8 @@ class User {
     return user;
   }
 
-  /** Delete given user from database; returns undefined. */
 
+  /** Delete given user from database; returns undefined. */
   static async remove(username) {
     let result = await db.query(
       `DELETE
