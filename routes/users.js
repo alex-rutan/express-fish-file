@@ -9,12 +9,16 @@ const { ensureCorrectUserOrAdmin, ensureAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const Location = require("../models/location");
+const Record = require("../models/record");
+const Weather = require("../models/weather");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
 const locationNewSchema = require("../schemas/locationNew.json");
 const locationUpdateSchema = require("../schemas/locationUpdate.json");
-const Weather = require("../models/weather");
+const recordNewSchema = require("../schemas/recordNew.json");
+const recordUpdateSchema = require("../schemas/recordUpdate.json");
+
 
 const router = express.Router();
 
@@ -220,6 +224,87 @@ router.get("/:username/locations/:id/weather", ensureCorrectUserOrAdmin, async f
 
   return res.json({ weather });
 })
+
+
+
+
+/****************** RECORD ROUTES ********************* */
+
+
+
+
+/** POST /  =>  { record }
+ *
+ * Authorization required: admin or same-user-as-:username
+ * */
+
+router.post("/:username/records", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(req.body, recordNewSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const record = await Record.create(req.body);
+  return res.status(201).json({ record });
+});
+
+
+/** GET /  =>  { records: [{ id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }, ...] }
+ *
+ * Returns list of all records.
+ **/
+
+router.get("/:username/records", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const records = await Record.findAllUserRecords(req.params.username);
+  return res.json({ records });
+});
+
+
+/** GET /[id]  =>  { record }
+ *
+ * Returns { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+ *
+ * Authorization required: admin or same user-as-:username
+ **/
+
+router.get("/:username/records/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const record = await Record.get(req.params.id);
+  return res.json({ record });
+});
+
+
+/** PATCH /[id] { record }  =>  { record }
+ *
+ * Data can include:
+ *   { locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+ *
+ * Returns { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+ *
+ * Authorization required: admin or same-user-as-:username
+ **/
+
+router.patch("/:username/records/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const validator = jsonschema.validate(req.body, recordUpdateSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const record = await Record.update(req.params.id, req.body);
+  return res.json({ record });
+});
+
+
+/** DELETE /[id]  =>  { deleted: id }
+ *
+ * Authorization required: admin or same-user-as-:username
+ **/
+
+router.delete("/:username/records/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  await Record.remove(req.params.id);
+  return res.json({ deleted: req.params.id });
+});
 
 
 module.exports = router;
