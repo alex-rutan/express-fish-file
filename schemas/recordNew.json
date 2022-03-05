@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 25
+    },
+    "locationId": {
+      "type": "number"
+    },
+    "date": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "description": {
+      "type": "string"
+    },
+    "flies": {
+      "type": "string"
+    },
+    "flow": {
+      "type": "number"
+    },
+    "waterTemp": {
+      "type": "number",
+      "minimum": 30,
+      "maximum": 100
+    },
+    "pressure": {
+      "type": "number",
+      "minimum": 26,
+      "maximum": 32
+    },
+    "weather": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20
+    },
+    "highTemp": {
+      "type": "number",
+      "minimum": -40,
+      "maximum": 120
+    },
+    "lowTemp": {
+      "type": "number",
+      "minimum": -40,
+      "maximum": 120
+    }
+  },
+  "additionalProperties": false,
+  "required": ["username", "location_id", "date"]
+}
