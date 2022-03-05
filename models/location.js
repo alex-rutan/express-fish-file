@@ -103,7 +103,7 @@ class Location {
    *
    * Returns { id, username, name, usgsId, decLat, decLong, fish, records }
    *
-   * Throws NotFoundError if user not found.
+   * Throws NotFoundError if location not found.
    **/
   static async get(id) {
     const locationRes = await db.query(
@@ -177,7 +177,7 @@ class Location {
     return location;
   }
 
-  
+
   /** Delete given location from database; returns undefined. */
 
   static async remove(id) {

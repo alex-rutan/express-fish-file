@@ -30,6 +30,6 @@ CREATE TABLE records (
   water_temp NUMERIC CHECK (water_temp >= 30) CHECK (water_temp <= 100),
   pressure NUMERIC CHECK (pressure >= 26) CHECK (pressure <= 32),
   weather VARCHAR(20),
-  high_temp INTEGER,
-  low_temp INTEGER
+  high_temp INTEGER CHECK (high_temp >= -40) CHECK (high_temp <= 120),
+  low_temp INTEGER CHECK (low_temp >= -40) CHECK (low_temp <= 120)
 );
