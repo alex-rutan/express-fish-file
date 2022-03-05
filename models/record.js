@@ -1,263 +1,34 @@
 "use strict";
 
 const db = require("../db");
-const bcrypt = require("bcrypt");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 const {
   NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
+  BadRequestError
 } = require("../expressError");
 
-const { BCRYPT_WORK_FACTOR } = require("../config.js");
 
-/** Related functions for users. */
+/** Related functions for records. */
 
-class User {
-  /** authenticate user with username, password.
+class Record {
+
+  /** Create record.
    *
-   * Returns { username, first_name, last_name, email, is_admin }
+   * Returns record: { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
    *
-   * Throws UnauthorizedError is user not found or wrong password.
+   * Throws NotFoundError if location doesn't exist in db and BadRequestError on duplicates.
    **/
-
-  static async authenticate(username, password) {
-    // try to find the user first
-    const result = await db.query(
-      `SELECT username,
-                  password,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
-      [username],
-    );
-
-    const user = result.rows[0];
-
-    if (user) {
-      // compare hashed password to a new hash from password
-      const isValid = await bcrypt.compare(password, user.password);
-      if (isValid === true) {
-        delete user.password;
-        return user;
-      }
-    }
-
-    throw new UnauthorizedError("Invalid username/password");
-  }
-
-  /** Register user with data.
-   *
-   * Returns { username, firstName, lastName, email, isAdmin }
-   *
-   * Throws BadRequestError on duplicates.
-   **/
-
-  static async register(
-    { username, password, firstName, lastName, email, isAdmin }) {
-    const duplicateCheck = await db.query(
-      `SELECT username
-           FROM users
-           WHERE username = $1`,
-      [username],
-    );
-
-    if (duplicateCheck.rows[0]) {
-      throw new BadRequestError(`Duplicate username: ${username}`);
-    }
-
-    const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-
-    const result = await db.query(
-      `INSERT INTO users
-           (username,
-            password,
-            first_name,
-            last_name,
-            email,
-            is_admin)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
-      [
-        username,
-        hashedPassword,
-        firstName,
-        lastName,
-        email,
-        isAdmin,
-      ],
-    );
-
-    const user = result.rows[0];
-
-    return user;
-  }
-
-  /** Find all users.
-   *
-   * Returns [{ username, first_name, last_name, email, is_admin }, ...]
-   **/
-
-  static async findAll() {
-    const result = await db.query(
-      `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           ORDER BY username`,
-    );
-
-    return result.rows;
-  }
-
-  /** Given a username, return data about user.
-   *
-   * Returns { username, first_name, last_name, is_admin, locations, records }
-   *
-   * Throws NotFoundError if user not found.
-   **/
-
-  static async get(username) {
-    const userRes = await db.query(
-      `SELECT username,
-                  first_name AS "firstName",
-                  last_name AS "lastName",
-                  email,
-                  is_admin AS "isAdmin"
-           FROM users
-           WHERE username = $1`,
-      [username],
-    );
-
-    const user = userRes.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    // query for and add user's locations to the user object
-    const locationsRes = await db.query(
-      `SELECT l.id
-           FROM locations AS l
-           WHERE l.username = $1`, [username]);
-
-    user.locations = locationsRes.rows.map(l => l.id);
-
-    // query for and add user's records to the user object
-    const userRecordsRes = await db.query(
-      `SELECT r.id
-           FROM records AS r
-           WHERE r.username = $1`, [username]);
-
-    user.records = userRecordsRes.rows.map(r => r.id);
-
-    return user;
-  }
-
-  /** Update user data with `data`.
-   *
-   * This is a "partial update" --- it's fine if data doesn't contain
-   * all the fields; this only changes provided ones.
-   *
-   * Data can include:
-   *   { firstName, lastName, password, email, isAdmin }
-   *
-   * Returns { username, firstName, lastName, email, isAdmin }
-   *
-   * Throws NotFoundError if not found.
-   *
-   * WARNING: this function can set a new password or make a user an admin.
-   * Callers of this function must be certain they have validated inputs to this
-   * or a serious security risks are opened.
-   */
-
-  static async update(username, data) {
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
-    }
-
-    const { setCols, values } = sqlForPartialUpdate(
-      data,
-      {
-        firstName: "first_name",
-        lastName: "last_name",
-        isAdmin: "is_admin",
-      });
-
-    // data can't include username, so must build a variable index for it
-    const usernameVarIdx = "$" + (values.length + 1);
-
-    const querySql = `UPDATE users 
-                      SET ${setCols} 
-                      WHERE username = ${usernameVarIdx} 
-                      RETURNING username,
-                                first_name AS "firstName",
-                                last_name AS "lastName",
-                                email,
-                                is_admin AS "isAdmin"`;
-    const result = await db.query(querySql, [...values, username]);
-    const user = result.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-
-    delete user.password;
-    return user;
-  }
-
-  /** Delete given user from database; returns undefined. */
-
-  static async remove(username) {
-    let result = await db.query(
-      `DELETE
-           FROM users
-           WHERE username = $1
-           RETURNING username`,
-      [username],
-    );
-    const user = result.rows[0];
-
-    if (!user) throw new NotFoundError(`No user: ${username}`);
-  }
-
-
-
-
-  /** Add location to locations table: update db, returns undefined.
-   *
-   **/
-
-  static async addLocation(username, name, usgsId, decLat, decLong, fish) {
+  static async create(
+    { username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }) {
+    // TODO: do I need to create a user check??  
     // make sure user exists
-    const userCheck = await db.query(
-      `SELECT username
-           FROM users
-           WHERE username = $1`, [username]);
-    const user = userCheck.rows[0];
+    // const userCheck = await db.query(
+    //   `SELECT username
+    //   FROM users
+    //   WHERE username = $1`, [username]);
+    // const user = userCheck.rows[0];
 
-    if (!user) throw new NotFoundError(`No username: ${username}`);
-
-    await db.query(
-      `INSERT INTO locations (username, name, usgs_id, dec_lat, dec_long, fish)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-      [username, name, usgsId, decLat, decLong, fish]);
-  }
-
-  /** Add record to records table: update db, returns undefined.
-   *
-   **/
-
-  static async makeRecord(username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp) {
-    // make sure user exists
-    const userCheck = await db.query(
-      `SELECT username
-           FROM users
-           WHERE username = $1`, [username]);
-    const user = userCheck.rows[0];
-
-    if (!user) throw new NotFoundError(`No username: ${username}`);
+    // if (!user) throw new NotFoundError(`No username: ${username}`);
 
     // make sure location exists
     const locationCheck = await db.query(
@@ -268,12 +39,181 @@ class User {
 
     if (!location) throw new NotFoundError(`No location: ${locationId}`);
 
-    await db.query(
-      `INSERT INTO records (username, location_id, date, rating, description, flies, flow, water_temp, pressure, weather, high_temp, low_temp)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp]);
+    // make sure there isn't a duplicate record for this location and date
+    const duplicateCheck = await db.query(
+      `SELECT id
+      FROM records
+      WHERE location_id = $1 AND date = $2`,
+      [locationId, date],
+    );
+
+    if (duplicateCheck.rows[0]) {
+      throw new BadRequestError(`Duplicate record for user: Location Id ${locationId} on ${date}`);
+    }
+
+    const result = await db.query(
+      `INSERT INTO records
+           (username,
+            location_id,
+            date,
+            rating,
+            description,
+            flies,
+            flow,
+            water_temp,
+            pressure,
+            weather,
+            high_temp,
+            low_temp)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      RETURNING id, username, location_id AS "locationId", date, rating, description, flies, flow, water_temp AS "waterTemp", pressure, weather, high_temp AS "highTemp", low_temp AS "lowTemp"`,
+      [
+        username, 
+        locationId, 
+        date, 
+        rating, 
+        description, 
+        flies, 
+        flow,
+        waterTemp, 
+        pressure, 
+        weather, 
+        highTemp, 
+        lowTemp
+      ],
+    );
+
+    const record = result.rows[0];
+
+    return record;
+  }
+
+
+  /** Find all user's records.
+   *
+   * Returns [{ id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }, ...]
+   **/
+  static async findAllUserRecords(username) {
+    const result = await db.query(
+      `SELECT id, 
+              username, 
+              location_id AS "locationId", 
+              date, 
+              rating, 
+              description, 
+              flies,
+              flow, 
+              water_temp AS "waterTemp", 
+              pressure, weather, 
+              high_temp AS "highTemp", 
+              low_temp AS "lowTemp
+      FROM records
+      WHERE username = $1
+      ORDER BY id`, [username]
+    );
+
+    return result.rows;
+  }
+
+
+  /** Given an id, return data about record.
+   *
+   * Returns { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+   *
+   * Throws NotFoundError if record not found.
+   **/
+  static async get(id) {
+    const result = await db.query(
+      `SELECT SELECT id, 
+              username, 
+              location_id AS "locationId", 
+              date, 
+              rating, 
+              description, 
+              flies,
+              flow, 
+              water_temp AS "waterTemp", 
+              pressure, weather, 
+              high_temp AS "highTemp", 
+              low_temp AS "lowTemp
+      FROM records
+      WHERE id = $1`,
+      [id],
+    );
+
+    const record = result.rows[0];
+
+    if (!record) throw new NotFoundError(`No record with Id: ${id}`);
+
+    return record;
+  }
+
+
+  /** Update record data with `data`.
+   *
+   * This is a "partial update" --- it's fine if data doesn't contain
+   * all the fields; this only changes provided ones.
+   *
+   * Data can include:
+   *   { locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+   *
+   * Returns { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
+   *
+   * Throws NotFoundError if not found.
+   */
+
+  static async update(id, data) {
+    const { setCols, values } = sqlForPartialUpdate(
+      data,
+      {
+        locationId: "location_id",
+        waterTemp: "water_temp",
+        highTemp: "high_temp",
+        lowTemp: "low_temp"
+      });
+
+    // data can't include id, so must build a variable index for it
+    const idVarIdx = "$" + (values.length + 1);
+
+    const querySql = `UPDATE records 
+                      SET ${setCols} 
+                      WHERE id = ${idVarIdx} 
+                      RETURNING id, 
+                      username, 
+                      location_id AS "locationId", 
+                      date, 
+                      rating, 
+                      description, 
+                      flies,
+                      flow, 
+                      water_temp AS "waterTemp", 
+                      pressure, 
+                      weather, 
+                      high_temp AS "highTemp", 
+                      low_temp AS "lowTemp"`;
+    const result = await db.query(querySql, [...values, id]);
+    const record = result.rows[0];
+
+    if (!record) throw new NotFoundError(`No record with Id: ${id}`);
+
+    return record;
+  }
+
+  /** Delete given record from database; returns undefined. */
+
+  static async remove(id) {
+    let result = await db.query(
+      `DELETE
+      FROM records
+      WHERE id = $1
+      RETURNING id`,
+      [id],
+    );
+    const record = result.rows[0];
+
+    if (!record) throw new NotFoundError(`No record with Id: ${id}`);
   }
 }
 
 
-module.exports = User;
+module.exports = Record;
