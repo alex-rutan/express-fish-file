@@ -55,5 +55,5 @@
     }
   },
   "additionalProperties": false,
-  "required": ["username", "location_id", "date"]
+  "required": ["username", "locationId", "date"]
 }
