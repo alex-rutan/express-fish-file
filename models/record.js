@@ -106,7 +106,7 @@ class Record {
               water_temp AS "waterTemp", 
               pressure, weather, 
               high_temp AS "highTemp", 
-              low_temp AS "lowTemp
+              low_temp AS "lowTemp"
       FROM records
       WHERE username = $1
       ORDER BY id`, [username]
