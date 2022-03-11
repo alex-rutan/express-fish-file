@@ -252,11 +252,22 @@ router.post("/:username/records", ensureCorrectUserOrAdmin, async function (req,
 
 /** GET /  =>  { records: [{ id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }, ...] }
  *
- * Returns list of all records.
+ * Returns list of all records for a user.
  **/
 
 router.get("/:username/records", ensureCorrectUserOrAdmin, async function (req, res, next) {
   const records = await Record.findAllUserRecords(req.params.username);
+  return res.json({ records });
+});
+
+
+/** GET /  =>  { records: [{ id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }, ...] }
+ *
+ * Returns list of all records for a location.
+ **/
+
+router.get("/:username/locations/:id/records", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  const records = await Record.findAllLocationRecords(req.params.id);
   return res.json({ records });
 });
 

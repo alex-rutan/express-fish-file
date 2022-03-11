@@ -116,6 +116,32 @@ class Record {
   }
 
 
+  /** Find all the records for a location.
+ *
+ * Returns [{ id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }, ...]
+ **/
+  static async findAllLocationRecords(locationId) {
+    const result = await db.query(
+      `SELECT id, 
+              username, 
+              location_id AS "locationId", 
+              date, 
+              rating, 
+              description, 
+              flies,
+              flow, 
+              water_temp AS "waterTemp", 
+              pressure, weather, 
+              high_temp AS "highTemp", 
+              low_temp AS "lowTemp"
+      FROM records
+      WHERE location_id = $1
+      ORDER BY id`, [locationId]
+    );
+
+    return result.rows;
+  }
+
   /** Given an id, return data about record.
    *
    * Returns { id, username, locationId, date, rating, description, flies, flow, waterTemp, pressure, weather, highTemp, lowTemp }
