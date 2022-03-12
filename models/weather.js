@@ -26,9 +26,9 @@ class Weather {
 
   // Individual API routes
 
-  /** Get current temperature and atmospheric pressure at latitude and longitude coordinates. */
+  /** Get current weather, temperature, atmospheric pressure, and wind speed at latitude and longitude coordinates. */
   static async getCurrWeather(decLat, decLong) {
-    const fields = 'fields=weatherCode,temperature,pressureSurfaceLevel,windSpeed'
+    const fields = 'fields=weatherCode,temperature,pressureSeaLevel,windSpeed'
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=current&units=imperial`);
     console.log("RES: ", res.data);
     
@@ -36,7 +36,7 @@ class Weather {
 
     const currWeatherCode = String(values.weatherCode) + "0";
     const currTemp = String(Math.round(values.temperature));
-    const pressure = String(values.pressureSurfaceLevel);
+    const pressure = String(values.pressureSeaLevel);
     const windSpeed = String(Math.round(values.windSpeed));
 
     console.log("CURRTEMP: ", currTemp);
@@ -44,21 +44,38 @@ class Weather {
   }
 
   
-  /** Get today's max and min temperature at latitude and longitude coordinates. */
-  static async getMaxMinTemps(decLat, decLong) {
-    const fields = 'fields=weatherCodeDay,precipitationProbability,temperatureMax,temperatureMin'
+  /** Get 7-day forecasted weather conditions at latitude and longitude coordinates. */
+  static async getForecastedWeather(decLat, decLong) {
+    const fields = 'fields=weatherCodeDay,precipitationProbability,temperatureMax,temperatureMin,windSpeed,pressureSeaLevel'
     const res = await this.request(`location=${decLat},${decLong}&${fields}&timesteps=1d&units=imperial`);
     console.log("RES: ", res.data);
 
-    const values = res.data.data.timelines[0].intervals[0].values;
+    const days = res.data.data.timelines[0].intervals.slice(0, 7);
+    const forecast = [];
 
-    const allDayWeatherCode = String(values.weatherCodeDay);
-    const maxTemp = String(Math.round(values.temperatureMax));
-    const minTemp = String(Math.round(values.temperatureMin));
-    const precipChance = String(values.precipitationProbability);
+    for (let day of days) {
+      const values = day.values;
 
-    console.log("MAXTEMP: ", maxTemp);
-    return { allDayWeatherCode, maxTemp, minTemp, precipChance };
+      const allDayWeatherCode = String(values.weatherCodeDay);
+      const highTemp = String(Math.round(values.temperatureMax));
+      const lowTemp = String(Math.round(values.temperatureMin));
+      const precipChance = String(values.precipitationProbability);
+      const windSpeed = String(Math.round(values.windSpeed));
+      const pressure = String(values.pressureSeaLevel);
+
+      forecast.push({ allDayWeatherCode, highTemp, lowTemp, precipChance, windSpeed, pressure });
+    }
+
+    // const values = res.data.data.timelines[0].intervals[0].values;
+
+    // const allDayWeatherCode = String(values.weatherCodeDay);
+    // const maxTemp = String(Math.round(values.temperatureMax));
+    // const minTemp = String(Math.round(values.temperatureMin));
+    // const precipChance = String(values.precipitationProbability);
+    // const windSpeed = String(Math.round(values.windSpeed));
+    // const pressure = String(values.pressureSurfaceLevel);
+
+    return forecast;
   }
 }
 

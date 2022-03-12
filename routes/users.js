@@ -218,9 +218,16 @@ router.delete("/:username/locations/:id", ensureCorrectUserOrAdmin, async functi
 router.get("/:username/locations/:id/weather", ensureCorrectUserOrAdmin, async function (req, res, next) {
   const { decLat, decLong } = req.query;
   const currWeather = await Weather.getCurrWeather(decLat, decLong);
-  const maxAndMinTemps = await Weather.getMaxMinTemps(decLat, decLong);
+  const forecastedWeather = await Weather.getForecastedWeather(decLat, decLong);
 
-  const weather = { ...currWeather, ...maxAndMinTemps };
+  currWeather.highTemp = forecastedWeather[0].highTemp;
+  currWeather.lowTemp = forecastedWeather[0].lowTemp;
+  currWeather.precipChance = forecastedWeather[0].precipChance;
+
+  const weather = { 
+    current: currWeather, 
+    forecast: forecastedWeather 
+  };
 
   return res.json({ weather });
 })
