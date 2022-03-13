@@ -39,7 +39,6 @@ class Weather {
     const pressure = String(values.pressureSeaLevel);
     const windSpeed = String(Math.round(values.windSpeed));
 
-    console.log("CURRTEMP: ", currTemp);
     return { currWeatherCode, currTemp, pressure, windSpeed };
   }
 
@@ -63,17 +62,10 @@ class Weather {
       const windSpeed = String(Math.round(values.windSpeed));
       const pressure = String(values.pressureSeaLevel);
 
-      forecast.push({ allDayWeatherCode, highTemp, lowTemp, precipChance, windSpeed, pressure });
+      const date = day.startTime;
+
+      forecast.push({ allDayWeatherCode, highTemp, lowTemp, precipChance, windSpeed, pressure, date });
     }
-
-    // const values = res.data.data.timelines[0].intervals[0].values;
-
-    // const allDayWeatherCode = String(values.weatherCodeDay);
-    // const maxTemp = String(Math.round(values.temperatureMax));
-    // const minTemp = String(Math.round(values.temperatureMin));
-    // const precipChance = String(values.precipitationProbability);
-    // const windSpeed = String(Math.round(values.windSpeed));
-    // const pressure = String(values.pressureSurfaceLevel);
 
     return forecast;
   }
