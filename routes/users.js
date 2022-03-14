@@ -223,6 +223,10 @@ router.get("/:username/locations/:id/weather", ensureCorrectUserOrAdmin, async f
   currWeather.highTemp = forecastedWeather[0].highTemp;
   currWeather.lowTemp = forecastedWeather[0].lowTemp;
   currWeather.precipChance = forecastedWeather[0].precipChance;
+  currWeather.minTempWeek = forecastedWeather.reduce((acc, day) => {
+    acc = day.lowTemp < acc ? day.lowTemp : acc;
+    return acc; 
+  }, Infinity);
 
   const weather = { 
     current: currWeather, 
