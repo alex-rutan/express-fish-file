@@ -106,7 +106,7 @@ class Location {
    *
    * Returns [{ id, username, name, usgsId, decLat, decLong, fish, favorite, records }, ...]
    **/
-  static async findAllUserFavoriteLocations(username, showFavorites) {
+  static async findAllUserFavoriteLocations(username) {
     const result = await db.query(
       `SELECT id,
               username,
@@ -118,7 +118,7 @@ class Location {
               favorite
       FROM locations
       WHERE username = $1 AND favorite = $2
-      ORDER BY name`, [username, showFavorites]
+      ORDER BY name`, [username, true]
     );
 
     for (const row of result.rows) {

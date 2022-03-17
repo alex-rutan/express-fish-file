@@ -160,8 +160,8 @@ router.get("/:username/locations", ensureCorrectUserOrAdmin, async function (req
   const { onlyShowFavorites } = req.query;
   let locations;
 
-  if (onlyShowFavorites) {
-    locations = await Location.findAllUserFavoriteLocations(req.params.username, onlyShowFavorites);
+  if (onlyShowFavorites === 'true') {
+    locations = await Location.findAllUserFavoriteLocations(req.params.username);
   } else {
     locations = await Location.findAllUserLocations(req.params.username);
   }
