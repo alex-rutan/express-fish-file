@@ -157,7 +157,15 @@ router.post("/:username/locations", ensureCorrectUserOrAdmin, async function (re
  **/
 
 router.get("/:username/locations", ensureCorrectUserOrAdmin, async function (req, res, next) {
-  const locations = await Location.findAllUserLocations(req.params.username);
+  const { onlyShowFavorites } = req.query;
+  let locations;
+
+  if (onlyShowFavorites) {
+    locations = await Location.findAllUserFavoriteLocations(req.params.username, onlyShowFavorites);
+  } else {
+    locations = await Location.findAllUserLocations(req.params.username);
+  }
+  
   return res.json({ locations });
 });
 

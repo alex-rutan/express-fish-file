@@ -12,31 +12,35 @@ VALUES ('testuser',
         'alexadmin@gmail.com',
         TRUE);
 
-INSERT INTO locations (username, name, usgs_id, dec_lat, dec_long, fish)
+INSERT INTO locations (username, name, usgs_id, dec_lat, dec_long, fish, favorite)
 VALUES  ('testuser',
         'Williams Fork',
         '09038500',  
         40.03592778, 
         -106.2050139,
-        'Brown Trout, Rainbow Trout'),
+        'Brown Trout, Rainbow Trout',
+        FALSE),
         ('testuser', 
         'Snake River - Jackson',
         '13022500', 
         43.1961111, 
         -110.8894444,
-        'Cutthroat Trout, Rainbow Trout, Brown Trout'),
+        'Cutthroat Trout, Rainbow Trout, Brown Trout',
+        FALSE),
         ('testadmin',
         'Williams Fork', 
         '09038500', 
         40.03592778, 
         -106.2050139,
-        'Brown Trout, Rainbow Trout'),
+        'Brown Trout, Rainbow Trout',
+        FALSE),
         ('testadmin',
         'Snake River - Jackson', 
         '13022500', 
         43.1961111, 
         -110.8894444,
-        'Cutthroat Trout, Rainbow Trout, Brown Trout');
+        'Cutthroat Trout, Rainbow Trout, Brown Trout',
+        FALSE);
 
 INSERT INTO records (username, location_id, date, rating, description, flies, flow, water_temp, pressure, weather, high_temp, low_temp)
 VALUES ('testuser',

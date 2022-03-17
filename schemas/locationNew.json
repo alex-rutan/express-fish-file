@@ -24,6 +24,9 @@
     },
     "fish": {
       "type": "string"
+    },
+    "favorite": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false,

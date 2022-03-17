@@ -15,7 +15,8 @@ CREATE TABLE locations (
   usgs_id VARCHAR(20),
   dec_lat NUMERIC,
   dec_long NUMERIC,
-  fish TEXT
+  fish TEXT,
+  favorite BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE records (

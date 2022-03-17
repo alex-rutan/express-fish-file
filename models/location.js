@@ -14,12 +14,12 @@ class Location {
 
   /** Create location.
    *
-   * Returns location: { id, username, name, usgsId, decLat, decLong, fish }
+   * Returns location: { id, username, name, usgsId, decLat, decLong, fish, favorite }
    *
    * Throws BadRequestError on duplicates.
    **/
   static async create(
-    { username, name, usgsId, decLat, decLong, fish }) {
+    { username, name, usgsId, decLat, decLong, fish, favorite }) {
     // TODO: do I need to create a user check??  
     // make sure user exists
     // const userCheck = await db.query(
@@ -48,16 +48,18 @@ class Location {
             usgs_id,
             dec_lat,
             dec_long,
-            fish)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, username, name, usgs_id AS "usgsId", dec_lat AS "decLat", dec_long AS "decLong, fish"`,
+            fish,
+            favorite)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, username, name, usgs_id AS "usgsId", dec_lat AS "decLat", dec_long AS "decLong", fish, favorite`,
       [
         username, 
         name,
         usgsId, 
         decLat, 
         decLong, 
-        fish
+        fish,
+        favorite
       ],
     );
 
@@ -69,7 +71,7 @@ class Location {
 
   /** Find all user's locations.
    *
-   * Returns [{ id, username, name, usgsId, decLat, decLong, fish, records }, ...]
+   * Returns [{ id, username, name, usgsId, decLat, decLong, fish, favorite, records }, ...]
    **/
   static async findAllUserLocations(username) {
     const result = await db.query(
@@ -79,7 +81,8 @@ class Location {
               usgs_id AS "usgsId",
               dec_lat AS "decLat",
               dec_long AS "decLong",
-              fish
+              fish,
+              favorite
       FROM locations
       WHERE username = $1
       ORDER BY name`, [username]
@@ -99,9 +102,42 @@ class Location {
   }
 
 
+  /** Find all user's favorite locations.
+   *
+   * Returns [{ id, username, name, usgsId, decLat, decLong, fish, favorite, records }, ...]
+   **/
+  static async findAllUserFavoriteLocations(username, showFavorites) {
+    const result = await db.query(
+      `SELECT id,
+              username,
+              name,
+              usgs_id AS "usgsId",
+              dec_lat AS "decLat",
+              dec_long AS "decLong",
+              fish,
+              favorite
+      FROM locations
+      WHERE username = $1 AND favorite = $2
+      ORDER BY name`, [username, showFavorites]
+    );
+
+    for (const row of result.rows) {
+      const locationRecordsRes = await db.query(
+        `SELECT r.id
+        FROM records AS r
+        WHERE r.location_id = $1`, [row.id]
+      );
+
+      row.records = locationRecordsRes.rows.map(r => r.id);
+    }
+
+    return result.rows;
+  }
+
+
   /** Given an id, return data about location.
    *
-   * Returns { id, username, name, usgsId, decLat, decLong, fish, records }
+   * Returns { id, username, name, usgsId, decLat, decLong, fish, favorite, records }
    *
    * Throws NotFoundError if location not found.
    **/
@@ -113,7 +149,8 @@ class Location {
               usgs_id AS "usgsId",
               dec_lat AS "decLat",
               dec_long AS "decLong",
-              fish
+              fish,
+              favorite
       FROM locations
       WHERE id = $1`,
       [id],
@@ -141,9 +178,9 @@ class Location {
    * all the fields; this only changes provided ones.
    *
    * Data can include:
-   *   { name, usgsId, decLat, decLong, fish }
+   *   { name, usgsId, decLat, decLong, fish, favorite }
    *
-   * Returns { id, username, name, usgsId, decLat, decLong, fish }
+   * Returns { id, username, name, usgsId, decLat, decLong, fish, favorite }
    *
    * Throws NotFoundError if not found.
    */
@@ -168,7 +205,8 @@ class Location {
                                 usgs_id AS "usgsId",
                                 dec_lat AS "decLat",
                                 dec_long AS "decLong",
-                                fish`;
+                                fish,
+                                favorite`;
     const result = await db.query(querySql, [...values, id]);
     const location = result.rows[0];
 
